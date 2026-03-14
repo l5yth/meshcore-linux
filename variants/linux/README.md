@@ -27,9 +27,15 @@ FIRMWARE_VERSION=dev pio run -e linux_repeater
 # binary: .pio/build/linux_repeater/program
 ```
 
-## Configuration
+## Setup
 
-The binary reads `/etc/meshcored/meshcored.ini` on startup. Copy and edit the sample:
+### 1. Install the binary
+
+```sh
+sudo cp .pio/build/linux_repeater/program /usr/bin/meshcored
+```
+
+### 2. Create the config file
 
 ```sh
 sudo mkdir -p /etc/meshcored
@@ -37,51 +43,83 @@ sudo cp variants/linux/meshcored.ini /etc/meshcored/meshcored.ini
 sudo nano /etc/meshcored/meshcored.ini
 ```
 
+The config file has two roles:
+
+- **Hardware config** (always read on every startup): SPI device, GPIO pin numbers, LoRa radio parameters.
+- **First-run node defaults**: `advert_name`, `admin_password`, `lat`, `lon`. On the first boot these are saved to `data_dir`. After that, use the serial CLI to change them (`set name`, `set password`, etc.) — the INI values are no longer consulted for these fields.
+
 Key settings:
 
 | Key | Default | Notes |
 |-----|---------|-------|
 | `spidev` | `/dev/spidev0.0` | SPI device node |
-| `lora_irq_pin` | (none) | GPIO pin number for IRQ |
-| `lora_reset_pin` | (none) | GPIO pin number for RESET |
-| `lora_nss_pin` | (none) | GPIO pin number for NSS/CS (if not handled by SPI driver) |
-| `lora_busy_pin` | (none) | GPIO pin number for BUSY |
+| `lora_irq_pin` | (none) | GPIO line number for IRQ |
+| `lora_reset_pin` | (none) | GPIO line number for RESET |
+| `lora_nss_pin` | (none) | GPIO line number for NSS/CS (if not handled by the SPI driver) |
+| `lora_busy_pin` | (none) | GPIO line number for BUSY |
 | `lora_freq` | `869.618` | Frequency in MHz |
 | `lora_bw` | `62.5` | Bandwidth in kHz |
 | `lora_sf` | `8` | Spreading factor |
 | `lora_cr` | `8` | Coding rate |
-| `lora_tcxo` | `1.8` | TCXO voltage (V); set to `0.0` if no TCXO |
+| `lora_tcxo` | `1.8` | TCXO voltage (V); set to `0.0` if your module has no TCXO |
 | `lora_tx_power` | `22` | TX power in dBm |
-| `advert_name` | `"Linux Repeater"` | Node name broadcast to the mesh |
-| `admin_password` | `"password"` | Change this |
-| `lat` / `lon` | `0.0` | GPS coordinates for advertisement |
-| `data_dir` | `/var/lib/meshcore` | Where identity and prefs are stored |
+| `advert_name` | `"Linux Repeater"` | Node name — first-run default only |
+| `admin_password` | `"password"` | Admin password — **change this**, first-run default only |
+| `lat` / `lon` | `0.0` | GPS coordinates for advertisement — first-run default only |
+| `data_dir` | `/var/lib/meshcore` | Where identity and node prefs are persisted |
 
-## Running
-
-Enable SPI and set GPIO permissions on the Pi:
+### 3. Enable SPI and GPIO access
 
 ```sh
 # Raspberry Pi OS
-sudo raspi-config  # Interface Options → SPI → Enable
+sudo raspi-config          # Interface Options → SPI → Enable
 sudo usermod -aG spi,gpio $USER
 ```
 
-Run directly:
+### 4. Run
+
+**Directly** (for testing):
 
 ```sh
-sudo .pio/build/linux_repeater/program
+sudo /usr/bin/meshcored
 ```
 
-## Systemd Service
+`sudo` is needed on first run to create `data_dir` if it doesn't exist. Once the directory is created and owned appropriately, it can run as a non-root user.
+
+**As a systemd service** (recommended for production):
 
 ```sh
 sudo cp variants/linux/meshcored.service /etc/systemd/system/
 sudo useradd -r -s /sbin/nologin meshcore
-sudo install -d -o meshcore -g meshcore /var/lib/meshcore
-# copy binary to /usr/bin/meshcored
+sudo systemctl daemon-reload
 sudo systemctl enable --now meshcored
 sudo journalctl -u meshcored -f
+```
+
+The service runs as the `meshcore` user. The `data_dir` and config file must be readable by that user:
+
+```sh
+sudo chown -R meshcore:meshcore /var/lib/meshcore
+sudo chmod 640 /etc/meshcored/meshcored.ini
+sudo chown root:meshcore /etc/meshcored/meshcored.ini
+```
+
+### 5. Reconfiguring after first run
+
+Node name, password, and location can be changed via the serial CLI after first boot:
+
+```
+set name <name>
+set password <password>
+set lat <lat>
+set lon <lon>
+```
+
+To reset all node prefs and re-apply the INI file defaults, delete the saved prefs and restart:
+
+```sh
+sudo rm /var/lib/meshcore/com_prefs
+sudo systemctl restart meshcored
 ```
 
 ## Known Gaps / TODO
