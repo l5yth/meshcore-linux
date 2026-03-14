@@ -91,17 +91,13 @@ sudo /usr/bin/meshcored
 ```sh
 sudo cp variants/linux/meshcored.service /etc/systemd/system/
 sudo useradd -r -s /sbin/nologin meshcore
+sudo mkdir -p /var/lib/meshcore
+sudo chown meshcore:meshcore /var/lib/meshcore
+sudo chmod 640 /etc/meshcored/meshcored.ini
+sudo chown root:meshcore /etc/meshcored/meshcored.ini
 sudo systemctl daemon-reload
 sudo systemctl enable --now meshcored
 sudo journalctl -u meshcored -f
-```
-
-The service runs as the `meshcore` user. The `data_dir` and config file must be readable by that user:
-
-```sh
-sudo chown -R meshcore:meshcore /var/lib/meshcore
-sudo chmod 640 /etc/meshcored/meshcored.ini
-sudo chown root:meshcore /etc/meshcored/meshcored.ini
 ```
 
 ### 5. Reconfiguring after first run
