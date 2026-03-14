@@ -122,6 +122,8 @@ sudo rm /var/lib/meshcore/com_prefs
 sudo systemctl restart meshcored
 ```
 
+> **Note:** LoRa radio parameters (`lora_freq`, `lora_bw`, `lora_sf`, `lora_cr`, `lora_tx_power`) are also first-run defaults. After first boot they are saved in `com_prefs` and the INI values are no longer read for those fields. To apply a changed radio parameter, use the CLI (`set freq`, `set sf`, etc.) or reset prefs as above.
+
 ## Known Gaps / TODO
 
 - **No CLI argument parsing** — config path is hardcoded to `/etc/meshcored/meshcored.ini`; `data_dir` is only configurable via the INI file.
