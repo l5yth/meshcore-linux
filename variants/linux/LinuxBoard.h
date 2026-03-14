@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <RadioLib.h>
 
 class LinuxConfig {

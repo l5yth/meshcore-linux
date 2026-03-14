@@ -1,4 +1,7 @@
 #include "TxtDataHelpers.h"
+#if defined(ARCH_PORTDUINO)
+  #include <inttypes.h>
+#endif
 
 void StrHelper::strncpy(char* dest, const char* src, size_t buf_sz) {
   while (buf_sz > 1 && *src) {
@@ -103,7 +106,7 @@ static void _ftoa(float f, char *p, int *status)
   else 
   {
 #if defined(ARCH_PORTDUINO)
-    sprintf(p, "%ld", int_part);
+    sprintf(p, "%" PRId32, int_part);
 #else
     ltoa(int_part, p, 10);
 #endif

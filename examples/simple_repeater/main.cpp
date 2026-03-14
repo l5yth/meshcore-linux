@@ -74,7 +74,9 @@ void setup() {
   IdentityStore store(LittleFS, "/identity");
   store.begin();
 #elif defined(ARCH_PORTDUINO)
-  ::mkdir(board.config.data_dir, 0755);
+  if (::mkdir(board.config.data_dir, 0755) != 0 && errno != EEXIST) {
+    Serial.printf("WARNING: could not create data_dir '%s': %s\n", board.config.data_dir, strerror(errno));
+  }
   portduinoVFS->mountpoint(board.config.data_dir);
   fs = &PortduinoFS;
   IdentityStore store(PortduinoFS, "/identity");
