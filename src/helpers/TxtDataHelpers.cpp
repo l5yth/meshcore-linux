@@ -102,7 +102,11 @@ static void _ftoa(float f, char *p, int *status)
     *p++ = '0';
   else 
   {
+#if defined(ARCH_PORTDUINO)
+    sprintf(p, "%ld", int_part);
+#else
     ltoa(int_part, p, 10);
+#endif
     while (*p)
       p++;
   }
