@@ -84,11 +84,9 @@ sudo systemctl enable --now meshcored
 sudo journalctl -u meshcored -f
 ```
 
-> **Note:** The service file passes `--fsdir /var/lib/meshcore` but the binary does not yet parse command-line arguments — it reads `data_dir` from `meshcored.ini` instead. The `--fsdir` flag is a no-op until CLI argument parsing is implemented.
-
 ## Known Gaps / TODO
 
-- **No CLI argument parsing** — config path is hardcoded to `/etc/meshcored/meshcored.ini`; `data_dir` is only configurable via the INI file, not via command-line flags (the service file's `--fsdir` is currently ignored).
+- **No CLI argument parsing** — config path is hardcoded to `/etc/meshcored/meshcored.ini`; `data_dir` is only configurable via the INI file.
 - **Only repeater firmware** — there is no `linux_companion` target yet; companion radio support (BLE/serial interface to a phone app) is not implemented for Linux.
 - **`formatFileSystem()`** returns `false` (not implemented) — the CLI `format` command will report failure on Linux.
 - **No power management** — `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
