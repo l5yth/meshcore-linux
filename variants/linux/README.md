@@ -5,7 +5,7 @@ Native Linux support for MeshCore, targeting Raspberry Pi (Zero, 3, 4, 5) and si
 ## Hardware
 
 - Raspberry Pi (any model with SPI)
-- SX1262-based LoRa module wired to the Pi's SPI bus (e.g. Waveshare SX1262 HAT, RAK2287, similar)
+- SX1262-based LoRa module wired to the Pi's SPI bus (e.g. Waveshare SX1262 HAT, PoW SX1262 HAT)
 - SPI, IRQ, RESET, and optionally BUSY/RXEN/TXEN GPIO pins
 
 ## Build
@@ -20,11 +20,17 @@ sudo pacman -S libgpiod i2c-tools
 sudo apt install libgpiod-dev libi2c-dev
 ```
 
-**Build with PlatformIO:**
+**Build with `build.sh`** (recommended — embeds version and commit hash):
+
+```sh
+FIRMWARE_VERSION=dev ./build.sh build-firmware linux_repeater
+# binary: .pio/build/linux_repeater/program
+```
+
+Alternatively, build directly with PlatformIO (no version metadata):
 
 ```sh
 FIRMWARE_VERSION=dev pio run -e linux_repeater
-# binary: .pio/build/linux_repeater/program
 ```
 
 ## Setup
@@ -37,9 +43,17 @@ sudo cp .pio/build/linux_repeater/program /usr/bin/meshcored
 
 ### 2. Create the config file
 
+Two ready-made templates are provided in `variants/linux/`:
+
+| Template | Hardware |
+|----------|----------|
+| `meshcored.ini.pow-sx1262` | RPi Zero 2W + PoW SX1262 HAT |
+| `meshcored.ini.waveshare` | RPi 3/4/5 + Waveshare SX1262 LoRa HAT |
+
 ```sh
 sudo mkdir -p /etc/meshcored
-sudo cp variants/linux/meshcored.ini /etc/meshcored/meshcored.ini
+# Pick the template that matches your hardware:
+sudo cp variants/linux/meshcored.ini.waveshare /etc/meshcored/meshcored.ini
 sudo nano /etc/meshcored/meshcored.ini
 ```
 
@@ -76,6 +90,13 @@ sudo raspi-config          # Interface Options → SPI → Enable
 sudo usermod -aG spi,gpio $USER
 ```
 
+On Arch Linux and other distributions without `spi`/`gpio` groups, use the provided udev rules instead (also works on Raspberry Pi OS):
+
+```sh
+sudo cp variants/linux/99-meshcore.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
 ### 4. Run
 
 **Directly** (for testing):
@@ -90,6 +111,8 @@ sudo /usr/bin/meshcored
 
 ```sh
 sudo cp variants/linux/meshcored.service /etc/systemd/system/
+sudo cp variants/linux/99-meshcore.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
 sudo useradd -r -s /sbin/nologin meshcore
 sudo mkdir -p /var/lib/meshcore
 sudo chown meshcore:meshcore /var/lib/meshcore
@@ -126,3 +149,4 @@ sudo systemctl restart meshcored
 - **Only repeater firmware** — there is no `linux_companion` target yet; companion radio support (BLE/serial interface to a phone app) is not implemented for Linux.
 - **`formatFileSystem()`** returns `false` (not implemented) — the CLI `format` command will report failure on Linux.
 - **No power management** — `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
+- **Portduino branding** — on startup the binary identifies itself as "An application written with portduino" with a Meshtastic bug URL. This is hardcoded in the Portduino framework and cannot be changed without patching the framework.
