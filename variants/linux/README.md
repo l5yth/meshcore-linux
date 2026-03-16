@@ -149,4 +149,4 @@ sudo systemctl restart meshcored
 - **Only repeater firmware** — there is no `linux_companion` target yet; companion radio support (BLE/serial interface to a phone app) is not implemented for Linux.
 - **`formatFileSystem()`** returns `false` (not implemented) — the CLI `format` command will report failure on Linux.
 - **No power management** — `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
-- **ArduLinux branding** — on startup the binary identifies itself as "An application written with portduino" with a Meshtastic bug URL. This is a cosmetic issue pending a fix in [l5yth/ardulinux](https://github.com/l5yth/ardulinux).
+- **ArduLinux branding** — on startup the binary identifies itself as "An application written with ardulinux".
