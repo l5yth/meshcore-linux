@@ -11,7 +11,7 @@
   #include <LittleFS.h>
 #elif defined(ESP32)
   #include <SPIFFS.h>
-#elif defined(ARCH_PORTDUINO)
+#elif defined(ARDULINUX_PLATFORM)
   #include <PortduinoFS.h>
 #endif
 
