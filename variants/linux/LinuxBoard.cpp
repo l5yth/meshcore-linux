@@ -26,19 +26,22 @@ int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 #endif
 }
 
+void ardulinuxSetup() {
+}
+
 void LinuxBoard::begin() {
   config.load("/etc/meshcored/meshcored.ini");
 
-  Serial.printf("SPI begin %s\n", config.spidev);
-  SPI.begin(config.spidev);
+  printf("SPI begin %s\n", config.spidev);
+  SPI.begin(config.spidev, 2000000);
 
-  Serial.printf("LoRa pins NSS=%d BUSY=%d IRQ=%d RESET=%d TX=%d RX=%d\n",
-                (int)config.lora_nss_pin,
-                (int)config.lora_busy_pin,
-                (int)config.lora_irq_pin,
-                (int)config.lora_reset_pin,
-                (int)config.lora_rxen_pin,
-                (int)config.lora_txen_pin);
+  printf("LoRa pins NSS=%d BUSY=%d IRQ=%d RESET=%d TX=%d RX=%d\n",
+         (int)config.lora_nss_pin,
+         (int)config.lora_busy_pin,
+         (int)config.lora_irq_pin,
+         (int)config.lora_reset_pin,
+         (int)config.lora_rxen_pin,
+         (int)config.lora_txen_pin);
 
   if (config.lora_nss_pin != RADIOLIB_NC) {
     initGPIOPin(config.lora_nss_pin, "gpiochip0", config.lora_nss_pin);

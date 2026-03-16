@@ -77,7 +77,7 @@ void setup() {
   if (::mkdir(board.config.data_dir, 0755) != 0 && errno != EEXIST) {
     Serial.printf("WARNING: could not create data_dir '%s': %s\n", board.config.data_dir, strerror(errno));
   }
-  arduLinuxVFS->mountpoint(board.config.data_dir);
+  ardulinuxVFS->mountpoint(board.config.data_dir);
   fs = &ArduLinuxFS;
   IdentityStore store(ArduLinuxFS, "/identity");
   store.begin();

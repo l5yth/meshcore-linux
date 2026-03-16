@@ -7,7 +7,8 @@ public:
   ArduLinuxHal(SPIClass &spi, SPISettings spiSettings) : ArduinoHal(spi, spiSettings){};
 
   void spiTransfer(uint8_t *out, size_t len, uint8_t *in) {
-    spi->transfer(out, in, len);
+    memcpy(in, out, len);
+    spi->transfer(in, len);
   }
 };
 
