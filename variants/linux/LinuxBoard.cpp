@@ -26,9 +26,6 @@ int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 #endif
 }
 
-void arduLinuxSetup() {
-}
-
 void LinuxBoard::begin() {
   config.load("/etc/meshcored/meshcored.ini");
 

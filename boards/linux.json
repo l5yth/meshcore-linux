@@ -12,7 +12,7 @@
   "connectivity": ["wifi", "bluetooth"],
   "debug": {},
   "frameworks": ["arduino", "ardulinux", "linux"],
-  "name": "ArduLinux - Arduino API for Linux",
+  "name": "Linux",
   "url": "https://github.com/l5yth/ardulinux",
   "upload": {
     "maximum_ram_size": 0,
