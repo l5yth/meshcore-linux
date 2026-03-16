@@ -12,7 +12,7 @@
 #elif defined(ESP32)
   #include <SPIFFS.h>
 #elif defined(ARDULINUX_PLATFORM)
-  #include <PortduinoFS.h>
+  #include <ArduLinuxFS.h>
 #endif
 
 #ifdef WITH_RS232_BRIDGE

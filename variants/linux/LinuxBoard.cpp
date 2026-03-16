@@ -7,7 +7,7 @@
 
 int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 {
-#ifdef PORTDUINO_LINUX_HARDWARE
+#ifdef ARDULINUX_LINUX_HARDWARE
   char gpio_name[32];
   snprintf(gpio_name, sizeof(gpio_name), "GPIO%d", pinNum);
 
@@ -26,7 +26,7 @@ int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 #endif
 }
 
-void portduinoSetup() {
+void arduLinuxSetup() {
 }
 
 void LinuxBoard::begin() {

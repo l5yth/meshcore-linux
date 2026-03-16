@@ -11,8 +11,8 @@
   },
   "connectivity": ["wifi", "bluetooth"],
   "debug": {},
-  "frameworks": ["portduino", "linux"],
-  "name": "Linux",
+  "frameworks": ["ardulinux", "linux"],
+  "name": "ArduLinux - Arduino API for Linux",
   "upload": {
     "maximum_ram_size": 0,
     "maximum_size": 0

@@ -1,6 +1,6 @@
 # MeshCore Linux Variant
 
-Native Linux support for MeshCore, targeting Raspberry Pi (Zero, 3, 4, 5) and similar SBCs with an SX1262 LoRa radio attached over SPI. Uses the [Ardulinux](https://github.com/l5yth/ardulinux) Arduino-compatibility layer to run the same firmware codebase on Linux without modification to the core library.
+Native Linux support for MeshCore, targeting Raspberry Pi (Zero, 3, 4, 5) and similar SBCs with an SX1262 LoRa radio attached over SPI. Uses [ArduLinux — Arduino API for Linux](https://github.com/l5yth/ardulinux) to run the same firmware codebase on Linux without modification to the core library.
 
 ## Hardware
 
@@ -149,4 +149,4 @@ sudo systemctl restart meshcored
 - **Only repeater firmware** — there is no `linux_companion` target yet; companion radio support (BLE/serial interface to a phone app) is not implemented for Linux.
 - **`formatFileSystem()`** returns `false` (not implemented) — the CLI `format` command will report failure on Linux.
 - **No power management** — `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
-- **Ardulinux branding** — on startup the binary identifies itself as "An application written with portduino" with a Meshtastic bug URL. This is hardcoded in the Ardulinux framework and cannot be changed without patching the framework.
+- **ArduLinux branding** — on startup the binary identifies itself as "An application written with portduino" with a Meshtastic bug URL. This is hardcoded in the ArduLinux framework and cannot be changed without patching the framework.
