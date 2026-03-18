@@ -4,6 +4,11 @@
 #include <ctype.h>
 #include "linux/gpio/LinuxGPIOPin.h"
 #include "LinuxBoard.h"
+#include "AppInfo.h"
+
+const char *ardulinuxAppName        = "meshcored";
+const char *ardulinuxAppDescription = "a meshcore daemon for linux";
+const char *ardulinuxAppBugAddress  = "https://github.com/meshcore-dev/MeshCore";
 
 int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 {
