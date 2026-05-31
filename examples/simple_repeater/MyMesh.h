@@ -14,6 +14,8 @@
   using File = fs::File;
 #elif defined(ARCH_PORTDUINO)
   #include <PortduinoFS.h>
+#elif defined(ARDULINUX_PLATFORM)
+  #include <ArduLinuxFS.h>
 #endif
 
 #ifdef WITH_RS232_BRIDGE
