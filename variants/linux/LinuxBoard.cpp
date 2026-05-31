@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef ARDULINUX_HARDWARE
 #include "linux/gpio/LinuxGPIOPin.h"
+#endif
 #include "LinuxBoard.h"
 #include "AppInfo.h"
 
@@ -12,7 +14,7 @@ const char *ardulinuxAppBugAddress  = "https://github.com/meshcore-dev/MeshCore"
 
 int initGPIOPin(uint8_t pinNum, const std::string gpioChipName, uint8_t line)
 {
-#ifdef ARDULINUX_LINUX_HARDWARE
+#ifdef ARDULINUX_HARDWARE
   char gpio_name[32];
   snprintf(gpio_name, sizeof(gpio_name), "GPIO%d", pinNum);
 

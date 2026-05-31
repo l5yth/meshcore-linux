@@ -75,7 +75,7 @@ void setup() {
   store.begin();
 #elif defined(ARDULINUX_PLATFORM)
   if (::mkdir(board.config.data_dir, 0755) != 0 && errno != EEXIST) {
-    Serial.printf("WARNING: could not create data_dir '%s': %s\n", board.config.data_dir, strerror(errno));
+    printf("WARNING: could not create data_dir '%s': %s\n", board.config.data_dir, strerror(errno));
   }
   ardulinuxVFS->mountpoint(board.config.data_dir);
   fs = &ArduLinuxFS;
