@@ -30,7 +30,7 @@ You also need **PlatformIO Core** (`pio`) to build:
 
 ```sh
 # Arch Linux
-sudo pacman -S platformio        # or: pipx install platformio
+sudo pacman -S platformio-core   # or: pipx install platformio
 
 # Debian/Raspberry Pi OS
 pipx install platformio          # or: pip install --user platformio
@@ -167,7 +167,7 @@ sg meshcore -c 'meshcored --fsdir /var/lib/meshcore'
 sudo install -m 644 variants/linux/meshcored.service /etc/systemd/system/
 sudo install -m 644 variants/linux/99-meshcore.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo udevadm trigger
-sudo useradd -r -s /sbin/nologin meshcore
+sudo useradd -r -g meshcore -s /sbin/nologin meshcore   # -g: reuse the existing meshcore group (its udev rules grant device access)
 sudo chmod 640 /etc/meshcored/meshcored.ini
 sudo chown root:meshcore /etc/meshcored/meshcored.ini
 sudo systemctl daemon-reload
@@ -175,10 +175,10 @@ sudo systemctl enable --now meshcored
 sudo journalctl -u meshcored -f
 ```
 
-> The unit's `ExecStartPre` creates and chowns `/var/lib/meshcore`, so you don't
-> need to pre-create it. If you smoke-tested by running directly first, clear any
-> stale state so the service first-boots with the INI defaults:
-> `sudo rm -rf /var/lib/meshcore/*`
+> The unit's `StateDirectory=meshcore` makes systemd create `/var/lib/meshcore`
+> owned by `meshcore:meshcore` before startup, so you don't need to pre-create it.
+> If you smoke-tested by running directly first, clear any stale state so the
+> service first-boots with the INI defaults: `sudo rm -rf /var/lib/meshcore/*`
 
 ### 5. Reconfiguring after first run
 
