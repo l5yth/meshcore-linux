@@ -2,6 +2,17 @@
 
 Native Linux support for MeshCore, targeting Raspberry Pi (Zero, 3, 4, 5) and similar SBCs with an SX1262 LoRa radio attached over SPI. Uses [ArduLinux, Arduino API for Linux](https://github.com/l5yth/ardulinux) to run the same firmware codebase on Linux without modification to the core library.
 
+## Roles
+
+Two PlatformIO envs build different MeshCore roles from the same Linux/ArduLinux base:
+
+| Env | Role | Host interface |
+|-----|------|----------------|
+| `linux_repeater` | Simple repeater (re-advertises and forwards mesh traffic) | Text CLI on stdin/stdout (serial-style commands like `set name`, `set freq`) |
+| `linux` | Companion radio (exposes the binary control protocol used by phone / desktop client apps) | Binary frames on stdin/stdout; bridge via `socat` or a future TCP/BLE wrapper |
+
+Both envs share `variants/linux/{LinuxBoard,target}.*`, the same `/etc/meshcored/meshcored.ini` hardware config, and the same VFS layout under `--fsdir` — so only one role should run at a time against a given state dir.
+
 ## Hardware
 
 - Raspberry Pi (any model with SPI)
@@ -39,17 +50,21 @@ sudo pacman -S platformio-core   # or: pipx install platformio
 pipx install platformio          # or: pip install --user platformio
 ```
 
-**Build with `build.sh`** (recommended, embeds version and commit hash):
+**Build with `build.sh`** (recommended, embeds version and commit hash) — pick the env that matches the role you want:
 
 ```sh
 FIRMWARE_VERSION=dev ./build.sh build-firmware linux_repeater
 # binary: .pio/build/linux_repeater/meshcored
+
+FIRMWARE_VERSION=dev ./build.sh build-firmware linux
+# binary: .pio/build/linux/meshcored          (companion radio)
 ```
 
 Alternatively, build directly with PlatformIO (no version metadata):
 
 ```sh
 FIRMWARE_VERSION=dev pio run -e linux_repeater
+FIRMWARE_VERSION=dev pio run -e linux
 ```
 
 ## Setup
@@ -104,6 +119,10 @@ Key settings:
 | `advert_name` | `"Linux Repeater"` | Node name, first-run default only |
 | `admin_password` | `"password"` | Admin password, **change this**, first-run default only |
 | `lat` / `lon` | `0.0` | GPS coordinates for advertisement, first-run default only |
+
+> **Boolean keys** (`dio2_as_rf_switch`, `rx_boosted_gain`) are parsed as integers, use `1` / `0`. `true` / `false` are silently treated as `0`.
+>
+> **GPIO pins** are looked up on the chip named by `lora_gpiochip` (default `gpiochip0`) with the pin number used directly as the line index. This fits the Raspberry Pi header (BCM numbering); for other SBCs, override `lora_gpiochip` to match your hardware.
 
 ### 3. Enable SPI and GPIO access
 
@@ -198,6 +217,12 @@ sudo journalctl -u meshcored -f
 > (the unit's `RuntimeDirectory` provides `/run/meshcored`). See
 > [§5](#5-reconfiguring-after-first-run).
 
+> **Mesh time-sync wall-clock writes are no-ops under this unit.** The service
+> runs as `meshcore` with `NoNewPrivileges=yes` and no `CAP_SYS_TIME`, so
+> `settimeofday()` returns `EPERM` and the system clock is not updated from
+> mesh peers. This is the safe default, keep the wall clock synced via
+> `systemd-timesyncd` / NTP.
+
 ### 5. Reconfiguring after first run
 
 `meshcored` exposes a local CLI at the path set by `console_path` in
@@ -259,7 +284,7 @@ sudo systemctl start meshcored
 ## Known Gaps / TODO
 
 - **Config path is hardcoded**, meshcored always loads `/etc/meshcored/meshcored.ini`; there is no flag to point it elsewhere. (The data *path* is separate and configurable: it is the ArduLinux VFS root, set with `--fsdir`.)
-- **Only repeater firmware**, there is no `linux_companion` target yet; companion radio support (BLE/serial interface to a phone app) is not implemented for Linux.
+- **Companion transport is stdin/stdout only**, the `linux` env reuses `ArduinoSerialInterface(Serial)`, which ArduLinux maps to the daemon's stdin/stdout. That's fine for interactive use or `socat`-bridged TCP, but there is no native TCP listener or BLE/BlueZ transport yet — those are the natural follow-ups for talking to a phone app.
 - **Serial `erase` command is a no-op**, `formatFileSystem()` returns `false` on Linux, so the interactive serial `erase` command reports failure. To wipe the filesystem, use the `--erase` *startup* flag (or clear the VFS dir) instead, see step 5.
 - **No power management**, `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
 - **Upstream-sync fragility**, the radio wrapper (`LinuxSX1262Wrapper`) implements the `RadioLibWrapper` interface by hand, so it can drift from upstream in two ways: a new **pure-virtual** method breaks the Linux build (e.g. `setParams()`), and a new **virtual-with-default** method silently no-ops on Linux until overridden (e.g. `set`/`getRxBoostedGainMode()`, which reported and applied the wrong state until added). Mirror `CustomSX1262Wrapper` when syncing.

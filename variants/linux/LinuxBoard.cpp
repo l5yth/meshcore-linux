@@ -54,7 +54,9 @@ void LinuxBoard::begin() {
   exit(1);
 #endif
 
-  config.load("/etc/meshcored/meshcored.ini");
+  if (config.load("/etc/meshcored/meshcored.ini") < 0) {
+    fprintf(stderr, "warning: /etc/meshcored/meshcored.ini not found, using built-in defaults\n");
+  }
 
   printf("SPI begin %s\n", config.spidev);
   SPI.begin(config.spidev, 2000000);
@@ -94,12 +96,12 @@ void LinuxBoard::begin() {
 }
 
 void trim(char *str) {
-  char *end;
-  while (isspace((unsigned char)*str)) str++;
-  if (*str == 0) { *str = 0; return; }
-  end = str + strlen(str) - 1;
-  while (end > str && isspace((unsigned char)*end)) end--;
-  end[1] = '\0';
+  char *start = str;
+  while (isspace((unsigned char)*start)) start++;
+  char *end = start + strlen(start);
+  while (end > start && isspace((unsigned char)end[-1])) end--;
+  *end = '\0';
+  if (start != str) memmove(str, start, end - start + 1);
 }
 
 char *safe_copy(char *value, size_t maxlen) {
