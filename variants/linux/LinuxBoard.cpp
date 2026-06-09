@@ -67,23 +67,29 @@ void LinuxBoard::begin() {
          (int)config.lora_rxen_pin,
          (int)config.lora_txen_pin);
 
+  int failures = 0;
   if (config.lora_nss_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_nss_pin, "gpiochip0", config.lora_nss_pin);
+    failures += initGPIOPin(config.lora_nss_pin, "gpiochip0", config.lora_nss_pin);
   }
   if (config.lora_busy_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_busy_pin, "gpiochip0", config.lora_busy_pin);
+    failures += initGPIOPin(config.lora_busy_pin, "gpiochip0", config.lora_busy_pin);
   }
   if (config.lora_irq_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_irq_pin, "gpiochip0", config.lora_irq_pin);
+    failures += initGPIOPin(config.lora_irq_pin, "gpiochip0", config.lora_irq_pin);
   }
   if (config.lora_reset_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_reset_pin, "gpiochip0", config.lora_reset_pin);
+    failures += initGPIOPin(config.lora_reset_pin, "gpiochip0", config.lora_reset_pin);
   }
   if (config.lora_rxen_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_rxen_pin, "gpiochip0", config.lora_rxen_pin);
+    failures += initGPIOPin(config.lora_rxen_pin, "gpiochip0", config.lora_rxen_pin);
   }
   if (config.lora_txen_pin != RADIOLIB_NC) {
-    initGPIOPin(config.lora_txen_pin, "gpiochip0", config.lora_txen_pin);
+    failures += initGPIOPin(config.lora_txen_pin, "gpiochip0", config.lora_txen_pin);
+  }
+
+  if (failures > 0) {
+    printf("FATAL: %d GPIO pin(s) failed to bind; cannot start radio.\n", failures);
+    exit(1);
   }
 }
 
