@@ -1,0 +1,22 @@
+# meshcored.ini - meshtoad-e22
+
+# Hardware config (read on every startup):
+spidev = ch341
+lora_irq_pin = 6
+lora_reset_pin = 2
+lora_nss_pin = 0
+lora_busy_pin = 4
+lora_rxen_pin = 1
+lora_freq = 869.618
+lora_bw = 62.5
+lora_sf = 8
+lora_cr = 8
+lora_tcxo = 1.8
+dio2_as_rf_switch = 1
+lora_tx_power = 22
+
+# First-run node defaults (ignored after first boot; use CLI to change):
+advert_name = meshtoad-e22
+admin_password = changeme
+lat = 0.0
+lon = 0.0

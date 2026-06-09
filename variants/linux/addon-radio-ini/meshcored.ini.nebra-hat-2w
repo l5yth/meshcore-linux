@@ -1,0 +1,21 @@
+# meshcored.ini - NebraHat 2W
+
+# Hardware config (read on every startup):
+spidev = /dev/spidev0.0
+lora_irq_pin = 22
+lora_reset_pin = 18
+lora_busy_pin = 4
+lora_rxen_pin = 25
+lora_freq = 869.618
+lora_bw = 62.5
+lora_sf = 8
+lora_cr = 8
+lora_tcxo = 1.8
+dio2_as_rf_switch = 1
+lora_tx_power = 8
+
+# First-run node defaults (ignored after first boot; use CLI to change):
+advert_name = NebraHat 2W
+admin_password = changeme
+lat = 0.0
+lon = 0.0

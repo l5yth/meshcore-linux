@@ -1,0 +1,18 @@
+# meshcored.ini - RAK6421 + RAK13302 Slot 2
+
+# Hardware config (read on every startup):
+spidev = /dev/spidev0.1
+lora_irq_pin = 18
+lora_reset_pin = 24
+lora_busy_pin = 19
+lora_freq = 869.618
+lora_bw = 62.5
+lora_sf = 8
+lora_cr = 8
+lora_tx_power = 22
+
+# First-run node defaults (ignored after first boot; use CLI to change):
+advert_name = RAK6421 + RAK13302 Slot 2
+admin_password = changeme
+lat = 0.0
+lon = 0.0

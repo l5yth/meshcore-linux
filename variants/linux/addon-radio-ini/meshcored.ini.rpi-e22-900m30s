@@ -1,0 +1,22 @@
+# meshcored.ini - MeshAdv-Pi E22-900M30S
+
+# Hardware config (read on every startup):
+spidev = /dev/spidev0.0
+lora_irq_pin = 16
+lora_reset_pin = 18
+lora_nss_pin = 21
+lora_busy_pin = 20
+lora_rxen_pin = 12
+lora_txen_pin = 13
+lora_freq = 869.618
+lora_bw = 62.5
+lora_sf = 8
+lora_cr = 8
+lora_tcxo = 1.8
+lora_tx_power = 22
+
+# First-run node defaults (ignored after first boot; use CLI to change):
+advert_name = MeshAdv-Pi E22-900M30S
+admin_password = changeme
+lat = 0.0
+lon = 0.0

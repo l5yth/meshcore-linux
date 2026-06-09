@@ -1,0 +1,17 @@
+# meshcored.ini - Pinedio USB SX1262
+
+# Hardware config (read on every startup):
+spidev = ch341
+lora_irq_pin = 10
+lora_nss_pin = 0
+lora_freq = 869.618
+lora_bw = 62.5
+lora_sf = 8
+lora_cr = 8
+lora_tx_power = 22
+
+# First-run node defaults (ignored after first boot; use CLI to change):
+advert_name = Pinedio USB SX1262
+admin_password = changeme
+lat = 0.0
+lon = 0.0
