@@ -101,6 +101,8 @@ Key settings:
 |-----|---------|-------|
 | `spidev` | `/dev/spidev0.0` | SPI device node |
 | `lora_gpiochip` | `gpiochip0` | Name of the `/dev/gpiochip*` device (or kernel label). `gpiochip0` is correct for Pi 3/4/Zero 2W; Pi 5 may need `gpiochip4` or `pinctrl-rp1` depending on kernel |
+| `companion_tcp_port` | `5000` | `linux` env only. TCP port the companion binary protocol listens on. `0` disables TCP and falls back to stdin/stdout for `socat`/wrapper setups. Ignored by `linux_repeater` |
+| `companion_tcp_bind` | `127.0.0.1` | `linux` env only. Address the companion listens on. Default is localhost-only; set to `0.0.0.0` to expose on the network — **put auth in front of it**, the companion protocol is unauthenticated |
 | `lora_irq_pin` | (none) | GPIO line number for IRQ |
 | `lora_reset_pin` | (none) | GPIO line number for RESET |
 | `lora_nss_pin` | (none) | GPIO line number for NSS/CS (if not handled by the SPI driver) |
@@ -284,7 +286,7 @@ sudo systemctl start meshcored
 ## Known Gaps / TODO
 
 - **Config path is hardcoded**, meshcored always loads `/etc/meshcored/meshcored.ini`; there is no flag to point it elsewhere. (The data *path* is separate and configurable: it is the ArduLinux VFS root, set with `--fsdir`.)
-- **Companion transport is stdin/stdout only**, the `linux` env reuses `ArduinoSerialInterface(Serial)`, which ArduLinux maps to the daemon's stdin/stdout. That's fine for interactive use or `socat`-bridged TCP, but there is no native TCP listener or BLE/BlueZ transport yet — those are the natural follow-ups for talking to a phone app.
+- **Companion BLE transport** isn't implemented for Linux yet. The `linux` env exposes the binary control protocol over a native TCP listener (`companion_tcp_port`, default `127.0.0.1:5000`) — speaks the same framing as the embedded serial/WiFi companions, so `meshcore-cli -t <host>` connects directly. For a phone app over BLE you'd still need a BlueZ GATT server wrapping `meshcored`, which is the natural follow-up.
 - **Serial `erase` command is a no-op**, `formatFileSystem()` returns `false` on Linux, so the interactive serial `erase` command reports failure. To wipe the filesystem, use the `--erase` *startup* flag (or clear the VFS dir) instead, see step 5.
 - **No power management**, `board.sleep()` is a no-op; the power-saving loop in `main.cpp` never actually sleeps.
 - **Upstream-sync fragility**, the radio wrapper (`LinuxSX1262Wrapper`) implements the `RadioLibWrapper` interface by hand, so it can drift from upstream in two ways: a new **pure-virtual** method breaks the Linux build (e.g. `setParams()`), and a new **virtual-with-default** method silently no-ops on Linux until overridden (e.g. `set`/`getRxBoostedGainMode()`, which reported and applied the wrong state until added). Mirror `CustomSX1262Wrapper` when syncing.

@@ -39,6 +39,8 @@ public:
   // ($XDG_RUNTIME_DIR/meshcore/console, else /tmp/meshcore-<uid>/console).
   // Connect with `meshcore-cli -r -s <path>`.
   char* console_path = "";
+  uint16_t companion_tcp_port = 5000;          // linux env only; 0 = stdin/stdout fallback
+  char*    companion_tcp_bind = "127.0.0.1";   // 0.0.0.0 to expose on the network
 
   float lora_tcxo = 1.8f;
 
