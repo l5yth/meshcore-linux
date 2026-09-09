@@ -37,6 +37,8 @@ static File openWrite(FILESYSTEM* fs, const char* filename) {
   return fs->open(filename, FILE_O_WRITE);
 #elif defined(RP2040_PLATFORM)
   return fs->open(filename, "w");
+#elif defined(ARDULINUX_PLATFORM)
+  return fs->open(filename, "w");
 #else
   return fs->open(filename, "w", true);
 #endif
@@ -140,6 +142,8 @@ File DataStore::openRead(const char* filename) {
   return _fs->open(filename, FILE_O_READ);
 #elif defined(RP2040_PLATFORM)
   return _fs->open(filename, "r");
+#elif defined(ARDULINUX_PLATFORM)
+  return _fs->open(filename, "r");
 #else
   return _fs->open(filename, "r", false);
 #endif
@@ -149,6 +153,8 @@ File DataStore::openRead(FILESYSTEM* fs, const char* filename) {
 #if defined(NRF52_PLATFORM) || defined(STM32_PLATFORM)
   return fs->open(filename, FILE_O_READ);
 #elif defined(RP2040_PLATFORM)
+  return fs->open(filename, "r");
+#elif defined(ARDULINUX_PLATFORM)
   return fs->open(filename, "r");
 #else
   return fs->open(filename, "r", false);
@@ -176,6 +182,10 @@ bool DataStore::formatFileSystem() {
   bool fs_success = ((fs::SPIFFSFS *)_fs)->format();
   esp_err_t nvs_err = nvs_flash_erase(); // no need to reinit, will be done by reboot
   return fs_success && (nvs_err == ESP_OK);
+#elif defined(ARDULINUX_PLATFORM)
+  // Wiping is handled by the daemon's --erase startup flag (ArduLinux core
+  // clears the VFS root before any open). The runtime "erase" command is a no-op.
+  return false;
 #else
   #error "need to implement format()"
 #endif

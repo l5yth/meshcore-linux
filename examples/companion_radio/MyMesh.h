@@ -21,6 +21,8 @@
 #include <LittleFS.h>
 #elif defined(ESP32)
 #include <SPIFFS.h>
+#elif defined(ARDULINUX_PLATFORM)
+#include <ArduLinuxFS.h>
 #endif
 
 #include "DataStore.h"

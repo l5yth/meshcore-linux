@@ -85,8 +85,17 @@ MultiSerialInterface interface_manager;
 #elif defined(ESP32)
   #include <SPIFFS.h>
   DataStore store(SPIFFS, rtc_clock);
+#elif defined(ARDULINUX_PLATFORM)
+  DataStore store(ArduLinuxFS, rtc_clock);
 #endif
 
+// include linux native interface
+#if defined(ARDULINUX_PLATFORM)
+  #include <helpers/ArduinoSerialInterface.h>
+  #include <helpers/LinuxTcpInterface.h>
+  ArduinoSerialInterface linux_serial_interface;
+  LinuxTcpInterface      tcp_interface;
+#endif
 /* GLOBAL OBJECTS */
 #ifdef DISPLAY_CLASS
   #include "UITask.h"
@@ -180,6 +189,17 @@ void setup() {
         false
     #endif
   );
+#elif defined(ARDULINUX_PLATFORM)
+  // the VFS root is established by the ArduLinux core from --fsdir
+  // (default: the XDG data dir, e.g. ~/.local/share/meshcored/default)
+  store.begin();
+  the_mesh.begin(
+    #ifdef DISPLAY_CLASS
+        disp != NULL
+    #else
+        false
+    #endif
+  );
 #else
   #error "need to define filesystem"
 #endif
@@ -228,6 +248,22 @@ void setup() {
   companion_serial.begin(115200);
   hardware_serial_interface.begin(companion_serial);
   interface_manager.addInterface(InterfaceType::HardwareSerial, &hardware_serial_interface);
+#endif
+
+// add linux native interface: the TCP listener when companion_tcp_port is set
+// and binds, otherwise the stdio transport (ArduLinux maps Serial to stdin/stdout)
+#if defined(ARDULINUX_PLATFORM)
+  if (board.config.companion_tcp_port != 0
+      && tcp_interface.begin(board.config.companion_tcp_port, board.config.companion_tcp_bind)) {
+    interface_manager.addInterface(InterfaceType::WiFi, &tcp_interface);
+    fprintf(stderr, "Companion: TCP listener on %s:%u\n",
+            board.config.companion_tcp_bind, board.config.companion_tcp_port);
+  } else {
+    linux_serial_interface.begin(Serial);
+    interface_manager.addInterface(InterfaceType::USB, &linux_serial_interface);
+    fprintf(stderr, "Companion: stdin/stdout transport (companion_tcp_port = %u)\n",
+            board.config.companion_tcp_port);
+  }
 #endif
 
   the_mesh.startInterface(interface_manager);

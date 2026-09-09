@@ -3,7 +3,9 @@
 
 # Hardware config (read on every startup):
 spidev = /dev/spidev0.0
-# lora_gpiochip = gpiochip0   # Pi 3/4/Zero 2W default; Pi 5 may need gpiochip4 or pinctrl-rp1
+# lora_gpiochip = gpiochip0          # Pi 3/4/Zero 2W default; Pi 5 may need gpiochip4 or pinctrl-rp1
+# companion_tcp_port = 5000          # linux env only; 0 = stdin/stdout fallback
+# companion_tcp_bind = 127.0.0.1     # 0.0.0.0 to expose on the network (no auth!)
 lora_irq_pin = 16
 lora_reset_pin = 18
 lora_nss_pin = 21
